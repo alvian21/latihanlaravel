@@ -16,6 +16,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('crud', 'CrudController');
 
 
+
+
+Auth::routes();
+
+
+Route::group([
+    'prefix' => 'admin',
+    'middleware' => 'auth'
+], function () {
+
+    Route::resource('crud', 'CrudController');
+
+});
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use Illuminate\Support\Facades\Validator;
 
 class CrudController extends Controller
 {
@@ -36,11 +37,20 @@ class CrudController extends Controller
      */
     public function store(Request $request)
     {
-        $student = new Student();
-        $student->nama = $request->get("nama");
-        $student->nim = $request->get("nim");
-        $student->save();
-        return redirect()->route("crud.index");
+        $validator = Validator::make(request()->all(), [
+            'nama' => 'required',
+            'nim' => 'required|numeric'
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator->errors());
+        } else {
+            $student = new Student();
+            $student->nama = $request->get("nama");
+            $student->nim = $request->get("nim");
+            $student->save();
+
+            return redirect()->route("crud.index");
+        }
     }
 
     /**
@@ -75,11 +85,20 @@ class CrudController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student = Student::find($id);
-        $student->nama = $request->get('nama');
-        $student->nim = $request->get('nim');
-        $student->save();
-        return redirect()->route("crud.index");
+        $validator = Validator::make(request()->all(), [
+            'nama' => 'required',
+            'nim' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return back()->withErrors($validator->errors());
+        } else {
+            $student = Student::find($id);
+            $student->nama = $request->get("nama");
+            $student->nim = $request->get("nim");
+            $student->save();
+
+            return redirect()->route("crud.index");
+        }
     }
 
     /**
@@ -92,6 +111,8 @@ class CrudController extends Controller
     {
         $student = Student::find($id);
         $student->delete();
-        return redirect()->route("crud.index");
+        if ($student->delete()) {
+            echo 'sukses';
+        }
     }
 }
